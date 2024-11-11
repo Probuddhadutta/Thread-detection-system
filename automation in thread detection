@@ -1,0 +1,100 @@
+Original file is located at
+    https://colab.research.google.com/drive/1-ahpISjyVwvGV9oJHuLJW_Z0TwH1_f97
+"""
+
+from google.colab import drive
+
+drive.mount('/content/drive')
+
+import os
+os.chdir('/content/drive/MyDrive/dataset1')
+
+!ls
+
+import torch
+import torchvision
+from torchvision import transforms
+from torchvision.datasets import ImageFolder
+from torch.utils.data import DataLoader
+0
+# Define data transformations for preprocessing
+transform = transforms.Compose([
+    transforms.Resize((224, 224)),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+])
+
+# Load the dataset
+dataset = ImageFolder(root="/content/drive/MyDrive/dataset1", transform=transform)
+
+# Create data loader
+batch_size = 32  # Corrected variable name
+dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+
+# Define the class names (assuming you have a list of class names)
+class_names = dataset.classes
+print(class_names)  # This will print the class names extracted from the dataset
+
+#CNN
+import torch
+import torch.nn as nn
+import torch.optim as optim
+
+# Define a simple CNN model
+class SimpleCNN(nn.Module):
+    def __init__(self, num_classes):  # Corrected initialization function
+        super(SimpleCNN, self).__init__()  # Corrected super call
+        self.conv1 = nn.Conv2d(3, 32, kernel_size=3, padding=1)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.fc1 = nn.Linear(64 * 56 * 56, 128)
+        self.fc2 = nn.Linear(128, num_classes)
+
+    def forward(self, x):
+        x = self.pool(torch.relu(self.conv1(x)))
+        x = self.pool(torch.relu(self.conv2(x)))
+        x = x.view(-1, 64 * 56 * 56)
+        x = torch.relu(self.fc1(x))
+        x = self.fc2(x)
+        return x
+
+# Assuming you've loaded your dataset and defined class_names before this point
+num_classes = len(class_names)
+cnn_model = SimpleCNN(num_classes)
+
+# Define a loss function and optimizer
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.SGD(cnn_model.parameters(), lr=0.005, momentum=0.9)
+
+# Training loop
+num_epochs = 2
+for epoch in range(num_epochs):
+    cnn_model.train()  # Set the model to training mode
+
+    for images, labels in dataloader:
+        optimizer.zero_grad()
+        outputs = cnn_model(images)
+        loss = criterion(outputs, labels)
+        loss.backward()
+        optimizer.step()
+
+    print(f"Epoch [{epoch + 1}/{num_epochs}] - Loss: {loss:.4f}")
+
+# Evaluation code
+def evaluate_model(model):
+    model.eval()  # Set the model to evaluation mode
+    correct = 0
+    total = 0
+
+    with torch.no_grad():
+        for images, labels in dataloader:
+            outputs = model(images)
+            _, predicted = torch.max(outputs, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+
+    accuracy = 100 * correct / total
+    print(f'Accuracy: {accuracy:.2f}%')
+
+# Evaluate the trained CNN model
+evaluate_model(cnn_model)
