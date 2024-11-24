@@ -1,11 +1,9 @@
 # Thread-detection-system
 AUTO tread detection in specilization in  Cyber security
 Cyberattack-Detection
-Author: Antoine DELPLACE
-Last update: 17/01/2020
+author PROBUDDHA DUTAA
 
-This repository corresponds to the source code used for the Advanced Security project "Cyber Attack Detection thanks to Machine Learning Algorithms". This work has been carried out by Antoine Delplace, Sheryl Hermoso and Kristofer Anandita.
-
+This repository corresponds to the source code used for the Advanced Security project "Cyber Attack Detection thanks to Machine Learning Algorithms". This work has been carried out by Antoine Delplace, 
 Method description
 The aim of the project is to find a mechanism that can detect cyber attacks by analysing flows in a network. To do this, a benchmark of different machine learning methods is performed on a large netflow dataset (see Report).
 
